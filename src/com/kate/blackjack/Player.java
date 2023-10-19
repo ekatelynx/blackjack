@@ -7,18 +7,29 @@ public class Player {
 
     private String name;
     private Integer bet;
-    private ArrayList<Integer> playersHand = new ArrayList<>();
+    private ArrayList<Card> playersHand = new ArrayList<>();
 
-    Scanner newScanner = new Scanner(System.in);
-
-    public void newPlayer() {
-        System.out.println("Enter your name");
-        String userName = newScanner.nextLine();
+    public String getName() {
+        return name;
     }
 
-    public void playersBet() {
-        System.out.println("Enter your bet");
-        String usersBet = newScanner.nextLine();
+    public void setName(String name) {
+        this.name = name;
     }
 
+    public Integer getBet() {
+        return bet;
+    }
+
+    public void setBet(Integer bet) {
+        this.bet = bet;
+    }
+
+    public ArrayList<Card> getPlayersHand() {
+        return playersHand;
+    }
+
+    public void setPlayersHand(ArrayList<Card> playersHand) {
+        this.playersHand = playersHand;
+    }
 }

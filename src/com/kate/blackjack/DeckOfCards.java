@@ -26,15 +26,18 @@ public class DeckOfCards {
 
 
     public void setDeck(ArrayList<Card> deck) {
+
         this.deck = deck;
     }
 
     public ArrayList<Card> getDeck() {
+
         return deck;
     }
 
     @Override
     public String toString() {
+
         return "DeckOfCards{" + deck + "}\n";
     }
 }

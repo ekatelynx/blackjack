@@ -29,7 +29,7 @@ public class Card {
                 this.value = Integer.parseInt(rank);
                 break;
             case "A":
-                this.value = 1;
+                this.value = 11;
                 break;
             default:
                 System.out.println("Error: Unknown rank.");

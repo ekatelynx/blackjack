@@ -43,6 +43,7 @@ What classes do I need:
 		- if any player has a natural and dealer has not: dealer pays each player that has won 1.5 of their bet
 		- if the dealer has a natural: takes the bets of players that don't have a natural
 		- if the dealer and a player both have a natural: a tie (no one gets no money)
+		
 4. Each player choose to either stand (not ask for another card) or hit (ask for another card) until they decide to stand or get 21 or get over 21
 	- if 21 or bust game is over for the player
 5. Dealer checks face down card:
@@ -177,3 +178,9 @@ If there is a stand-off (a player having the same total as the dealer), no chips
 //            }
 //        }
 //    }
+
+
+
+deal cards to a dealer and a player
+check the state 
+

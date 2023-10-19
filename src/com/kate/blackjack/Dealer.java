@@ -7,9 +7,9 @@ import java.util.Collections;
 
 public class Dealer {
 
-    private Integer betMin;
-    private Integer betMax;
-    private ArrayList<Integer> dealersHand = new ArrayList<>();
+
+    private ArrayList<Card> dealersHand = new ArrayList<>();
+
 
     Scanner newScanner = new Scanner(System.in);
     Random rand = new Random();
@@ -44,10 +44,10 @@ public class Dealer {
 
 */
 
-    public void shuffleDeckWithForEach(ArrayList deck) {
-        for(Object card : deck) {
+    public void shuffleDeckWithForEach(ArrayList<Card> deck) {
+        for(Card card : deck) {
 
-           Object tempVar = card;
+           Card tempVar = card;
            int nextRandom = rand.nextInt(deck.size());
            card=deck.get(nextRandom);
            deck.set(nextRandom, tempVar);
@@ -55,20 +55,25 @@ public class Dealer {
     }
 
 
-    private void dealCards() {
+    public ArrayList<Card> dealCards(ArrayList<Card> aHand, ArrayList<Card> aDeck, Integer numberOfCards) {
 
+        for (int i = 0; i < numberOfCards; i++) {
+            aHand.add(aDeck.get(i));
+            aDeck.remove(i);
+
+        }
+        System.out.println(aHand);
+        return aHand;
     }
 
 
 
-    private void checkForNaturals() {
 
+    public ArrayList<Card> getDealersHand() {
+        return dealersHand;
     }
 
-    public void playersMove() {
-        System.out.println("Your move: hit or stand?");
-        String usersMove = newScanner.nextLine();
+    public void setDealersHand(ArrayList<Card> dealersHand) {
+        this.dealersHand = dealersHand;
     }
-
-
 }

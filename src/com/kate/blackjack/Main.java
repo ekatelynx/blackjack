@@ -6,5 +6,10 @@ public class Main {
 
         GameController newGame = new GameController();
 
+//        for (int i = 0; i < 10 ; i++) {
+//            GameController newGame = new GameController("Remi", 100);
+//        }
+
+
     }
 }
