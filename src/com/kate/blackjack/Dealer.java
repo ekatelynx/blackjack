@@ -14,7 +14,6 @@ public class Dealer {
     Scanner newScanner = new Scanner(System.in);
     Random rand = new Random();
 
-
     private void collectBets() {
 
     }
@@ -60,8 +59,8 @@ public class Dealer {
         for (int i = 0; i < numberOfCards; i++) {
             aHand.add(aDeck.get(i));
             aDeck.remove(i);
-
         }
+
         System.out.println(aHand);
         return aHand;
     }

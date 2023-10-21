@@ -8,6 +8,7 @@ public class Player {
     private String name;
     private Integer bet;
     private ArrayList<Card> playersHand = new ArrayList<>();
+    private boolean didIWin;
 
     public String getName() {
         return name;
@@ -31,5 +32,13 @@ public class Player {
 
     public void setPlayersHand(ArrayList<Card> playersHand) {
         this.playersHand = playersHand;
+    }
+
+    public boolean getDidIWin() {
+        return didIWin;
+    }
+
+    public void setDidIWin(boolean didIWin) {
+        this.didIWin = didIWin;
     }
 }
