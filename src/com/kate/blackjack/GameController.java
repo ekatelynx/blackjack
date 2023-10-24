@@ -14,6 +14,7 @@ public class GameController {
     private int currentRound;
     private final Integer betMin = 2;
     private final Integer betMax = 500;
+    boolean displayCurrentHand = true;
 
 
 
@@ -50,34 +51,6 @@ public class GameController {
         play();
     }
 
-    public Object validate(Object userInput) {
-
-        if (userInput instanceof String) {
-            while (!StringUtils.isAlpha((String)userInput)) {
-                System.out.println("Please enter a valid name. Characters only.");
-                System.out.println("Enter your name");
-                userInput = newScanner.nextLine();
-            }
-        } else if (userInput instanceof Integer) {
-            while (!(((Integer) userInput) >= betMin) || !(((Integer) userInput) <= betMax)) {
-                System.out.println("Please enter a valid bet. Numbers 2 through 500 only.");
-                System.out.println("Enter your bet");
-                userInput = parseInteger(newScanner.nextLine());
-            }
-        } else if (userInput instanceof Boolean) {
-            while (userInput != null) {
-                System.out.println("Please enter a valid input. Y/yes or N/no.");
-                System.out.println("Your move: do you want to hit?");
-                userInput = parseBoolean(newScanner.nextLine());
-            }
-        } else {
-            System.out.println("Unknown input.");
-        }
-
-        return userInput;
-    }
-
-
     public void newPlayer() {
         System.out.println("Enter your name");
         String userName = newScanner.nextLine();
@@ -98,8 +71,68 @@ public class GameController {
         return playerMove;
     }
 
+
+//  CALCULATING THE HAND VALUE
+
+    public Integer calculateHandValue(ArrayList<Card> hand) {
+        Integer total = 0;
+        for (Card card: hand) {
+            total = total + card.getCardValue();
+        }
+        return total;
+    }
+
+
+//  DEALING THE CORRECT NUMBER OF CARDS
+
+    public Boolean resolveCards(Integer currentRound, DeckOfCards deck, Dealer dealer, Player player1){//da fak is this name
+        ArrayList<Card> playersHand = player1.getPlayersHand();
+        ArrayList<Card> dealersHand = dealer.getDealersHand();
+        ArrayList<Card> shuffledDeck = deck.getDeck();
+        if(currentRound == 1){
+            dealer.dealCards(playersHand,shuffledDeck, 2);
+            dealer.dealCards(dealersHand,shuffledDeck, 2);
+            //TODO: check if A is 11 or 1 - initial evaluation
+            checkTheStateOfTheGame(dealer.getDealersHand(), new ArrayList<>(Arrays.asList(player1)));
+            return false;
+        } else if (currentRound == 2) {
+            if(displayCurrentHand) {
+                displayPlayersHand(playersHand);
+                displayCurrentHand = false;
+            }
+            Boolean playerResponse = hitOrStand();
+            if (playerResponse) {
+                dealer.dealCards(playersHand, shuffledDeck, 1);
+                //TODO: check if A is 11 or 1 - ask a player
+                if (calculateHandValue(playersHand) < blackjack) {
+                    displayPlayersHand(playersHand);
+                }
+                return true;
+            } else {
+                return false;
+            }
+
+        } else if (currentRound == 3) {
+            if (calculateHandValue(dealersHand) < 17) {
+                dealer.dealCards(dealersHand,shuffledDeck, 1);
+                //TODO: check if A is 11 or 1 - dealer logic
+                return true;
+            } else {
+                checkTheStateOfTheGame(dealer.getDealersHand(), new ArrayList<>(Arrays.asList(player1)));
+                return false;
+            }
+        } else {
+            return null;
+        }
+    }
+
+
+//   CHECKING THE STATE OF THE GAME
+
+
     public void checkTheStateOfTheGame(ArrayList<Card> dealersHand, ArrayList<Player> players) {
         Integer total;
+        Integer dealersTotal = calculateHandValue(dealersHand);
         for (Player player: players) {
             ArrayList<Card> hand = player.getPlayersHand();
             total = calculateHandValue(hand);
@@ -109,17 +142,36 @@ public class GameController {
             } else if (total > 21) {
                 youLost(player);
                 deleteHand(hand);
-            } else {
-                //round 3
+            } else if (dealersTotal == blackjack ) {
+                youLost(player);
+                deleteHand(hand);
+            } else if (currentRound == 3) {
+                if  (dealersTotal > 21) {
+                    youWon(player);
+                    deleteHand(hand);
+                } else if (total > dealersTotal) {
+                    youWon(player);
+                    deleteHand(hand);
+                } else if (total < dealersTotal) {
+                    youLost(player);
+                    deleteHand(hand);
+                } else if (total == dealersTotal) {
+                    itsATie(hand);
+                }
             }
+
         }
+        System.out.println("Dealer's hand value: " + calculateHandValue(dealersHand));
         removePlayersWithEmptyHands(players);
         checkIfDealerWins(players);
     }
 
-
+    public void displayPlayersHand(ArrayList<Card> hand) {
+        System.out.println("Current hand value: " + calculateHandValue(hand));
+    }
 
     public void deleteHand(ArrayList<Card> hand) {
+        displayPlayersHand(hand);
         int stableHandSize = hand.size();
         for (int i = 0; i < stableHandSize; i++){
             hand.remove(hand.get(0));
@@ -183,43 +235,6 @@ public class GameController {
         }
     }
 
-    public Integer calculateHandValue(ArrayList<Card> hand) {
-        Integer total = 0;
-        for (Card card: hand) {
-            total = total + card.getCardValue();
-        }
-        return total;
-    }
-
-
-
-    public Boolean resolveCards(Integer currentRound, DeckOfCards deck, Dealer dealer, Player player1){//da fak is this name
-        ArrayList<Card> playersHand = player1.getPlayersHand();
-        ArrayList<Card> dealersHand = dealer.getDealersHand();
-        ArrayList<Card> shuffledDeck = deck.getDeck();
-        if(currentRound == 1){
-            dealer.dealCards(playersHand,shuffledDeck, 2);
-            dealer.dealCards(dealersHand,shuffledDeck, 2);
-            checkTheStateOfTheGame(dealer.getDealersHand(), new ArrayList<>(Arrays.asList(player1)));
-            return false;
-        } else if (currentRound == 2) {
-            System.out.println("Current hand value: " + calculateHandValue(playersHand));
-            Boolean playerResponse = hitOrStand();
-            if (playerResponse) {
-                dealer.dealCards(playersHand, shuffledDeck, 1);
-                System.out.println("Current hand value: " + calculateHandValue(playersHand));
-                return true;
-            } else {
-                return false;
-            }
-
-        } else if (currentRound == 3) {
-            dealer.dealCards(dealersHand,shuffledDeck, 1);
-            return null;
-        } else {
-            return null;
-        }
-    }
 
     public void dealerWins() {
         System.out.println("Dealer won!");
@@ -234,6 +249,42 @@ public class GameController {
         System.out.println("You've lost!");
         player.setDidIWin(false);
     }
+
+    public void itsATie(ArrayList<Card> hand) {
+        System.out.println("It's a tie!");
+        displayPlayersHand(hand);
+    }
+
+//   VALIDATING THE USER INPUT
+
+
+    public Object validate(Object userInput) {
+
+        if (userInput instanceof String) {
+            while (!StringUtils.isAlpha((String)userInput)) {
+                System.out.println("Please enter a valid name. Characters only.");
+                System.out.println("Enter your name");
+                userInput = newScanner.nextLine();
+            }
+        } else if (userInput instanceof Integer) {
+            while (!(((Integer) userInput) >= betMin) || !(((Integer) userInput) <= betMax)) {
+                System.out.println("Please enter a valid bet. Numbers 2 through 500 only.");
+                System.out.println("Enter your bet");
+                userInput = parseInteger(newScanner.nextLine());
+            }
+        } else if (userInput instanceof Boolean) {
+            while (userInput != null) {
+                System.out.println("Please enter a valid input. Y/yes or N/no.");
+                System.out.println("Your move: do you want to hit?");
+                userInput = parseBoolean(newScanner.nextLine());
+            }
+        } else {
+            System.out.println("Unknown input.");
+        }
+
+        return userInput;
+    }
+
 
     public Integer parseInteger(String allegedInteger){
         try{
