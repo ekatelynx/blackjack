@@ -10,6 +10,7 @@ public class Card {
     private String suit;
     private String rank;
     private Integer value;
+    private boolean hasAceChangedBefore;
     private static Set<String> acceptableSuits = new HashSet<>(Arrays.asList("Spades", "Clubs", "Diamonds","Hearts"));
     private static Set<String> acceptableRanks = new HashSet<>(Arrays.asList("2","3","4","5","6","7","8","9","10","A","J","Q","K"));
 
@@ -17,6 +18,7 @@ public class Card {
     private Card(String suit, String rank) {
         this.suit = suit;
         this.rank = rank;
+        this.hasAceChangedBefore = false;
         setCardValue(rank);
     }
 
@@ -25,7 +27,7 @@ public class Card {
             case "J": case "Q": case "K":
                 this.value = 10;
                 break;
-            case "2": case "3": case "4": case "5": case "6": case "7": case "8": case "9": case "10":
+            case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8": case "9": case "10": case "11":
                 this.value = Integer.parseInt(rank);
                 break;
             case "A":
@@ -59,6 +61,14 @@ public class Card {
 
     public String getRank() {
         return rank;
+    }
+
+    public boolean isHasAceChangedBefore() {
+        return hasAceChangedBefore;
+    }
+
+    public void setHasAceChangedBefore(boolean hasAceChangedBefore) {
+        this.hasAceChangedBefore = hasAceChangedBefore;
     }
 
     public static Set<String> getAcceptableSuits() {

@@ -1,14 +1,13 @@
 package com.kate.blackjack;
 
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.Collections;
+import java.util.*;
 
 public class Dealer {
 
 
     private ArrayList<Card> dealersHand = new ArrayList<>();
+    private String mode = "testing";
+    private boolean dealThis = true;
 
 
     Scanner newScanner = new Scanner(System.in);
@@ -56,9 +55,20 @@ public class Dealer {
 
     public ArrayList<Card> dealCards(ArrayList<Card> aHand, ArrayList<Card> aDeck, Integer numberOfCards) {
 
-        for (int i = 0; i < numberOfCards; i++) {
-            aHand.add(aDeck.get(i));
-            aDeck.remove(i);
+        if (mode == "testing" && dealThis == true) {
+
+            ArrayList<Card> testDeck = new ArrayList<>(Arrays.asList(Card.createCard("Diamonds", "A"), Card.createCard("Diamonds", "2")));
+            for (int i = 0; i < numberOfCards;i++) {
+                aHand.add(testDeck.get(0));
+                testDeck.remove(0);
+            }
+            dealThis = false;
+        }
+        else{
+            for (int i = 0; i < numberOfCards; i++) {
+                aHand.add(aDeck.get(0));
+                aDeck.remove(0);
+            }
         }
 
         System.out.println(aHand);

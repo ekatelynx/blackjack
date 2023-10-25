@@ -68,7 +68,15 @@ public class GameController {
     public Boolean hitOrStand() {
         System.out.println("Your move: do you want to hit?");
         Boolean playerMove = parseBoolean(newScanner.nextLine());
+        playerMove = (Boolean)validate(playerMove);
         return playerMove;
+    }
+
+    public Integer oneOrEleven() {
+        System.out.println("Set the Ace value: 1 or 11.");
+        Integer aceValue = parseInteger(newScanner.nextLine());
+        aceValue = (Integer) validateAce(aceValue);
+        return aceValue;
     }
 
 
@@ -93,6 +101,12 @@ public class GameController {
             dealer.dealCards(playersHand,shuffledDeck, 2);
             dealer.dealCards(dealersHand,shuffledDeck, 2);
             //TODO: check if A is 11 or 1 - initial evaluation
+            if (playersHand.get(0).getRank() == "A" && playersHand.get(1).getRank() == "A") {
+                playersHand.get(0).setCardValue("1");
+            }
+            if (dealersHand.get(0).getRank() == "A" && dealersHand.get(1).getRank() == "A") {
+                dealersHand.get(0).setCardValue("1");
+            }
             checkTheStateOfTheGame(dealer.getDealersHand(), new ArrayList<>(Arrays.asList(player1)));
             return false;
         } else if (currentRound == 2) {
@@ -104,6 +118,21 @@ public class GameController {
             if (playerResponse) {
                 dealer.dealCards(playersHand, shuffledDeck, 1);
                 //TODO: check if A is 11 or 1 - ask a player
+                for (Card card: playersHand) {
+                    if (card.getRank() == "A" && card.getCardValue() == 11 && card.isHasAceChangedBefore() == false && calculateHandValue(playersHand) > blackjack) {
+                        System.out.println("Swapping the value of your Ace from 11 to 1 to avoid busting.");
+                        card.setHasAceChangedBefore(true);
+                        card.setCardValue("1");
+                    } else if (card.getRank() == "A" && card.getCardValue() == 11 && card.isHasAceChangedBefore() == false) {
+                        checkTheStateOfTheGame(dealer.getDealersHand(), new ArrayList<>(Arrays.asList(player1)));
+                        System.out.println("You've got an Ace");
+                        displayPlayersHand(playersHand);
+                        Integer newAce = oneOrEleven();
+                        String newAceValue = String.valueOf(newAce);
+                        card.setHasAceChangedBefore(true);
+                        card.setCardValue(newAceValue);
+                    }
+                }
                 if (calculateHandValue(playersHand) < blackjack) {
                     displayPlayersHand(playersHand);
                 }
@@ -116,6 +145,13 @@ public class GameController {
             if (calculateHandValue(dealersHand) < 17) {
                 dealer.dealCards(dealersHand,shuffledDeck, 1);
                 //TODO: check if A is 11 or 1 - dealer logic
+                for (Card card: playersHand) {
+                    if(card.getRank() == "A" && card.getCardValue() == 11 && card.isHasAceChangedBefore() == false && calculateHandValue(dealersHand) > blackjack){
+                        System.out.println("Swapping the value of your Ace from 11 to 1 to avoid busting.");
+                        card.setHasAceChangedBefore(true);
+                        card.setCardValue("1");
+                    }
+                }
                 return true;
             } else {
                 checkTheStateOfTheGame(dealer.getDealersHand(), new ArrayList<>(Arrays.asList(player1)));
@@ -272,8 +308,8 @@ public class GameController {
                 System.out.println("Enter your bet");
                 userInput = parseInteger(newScanner.nextLine());
             }
-        } else if (userInput instanceof Boolean) {
-            while (userInput != null) {
+        } else if (userInput instanceof Boolean || null == userInput ) {
+            while (userInput == null) {
                 System.out.println("Please enter a valid input. Y/yes or N/no.");
                 System.out.println("Your move: do you want to hit?");
                 userInput = parseBoolean(newScanner.nextLine());
@@ -283,6 +319,20 @@ public class GameController {
         }
 
         return userInput;
+    }
+
+    public Object validateAce(Object userAceInput) {
+        if (userAceInput instanceof Integer) {
+            while (!(((Integer) userAceInput) == 1) && !(((Integer) userAceInput) == 11)) {
+                System.out.println("Please enter a valid value. Numbers 1 or 11 only.");
+                System.out.println("Set the Ace value: 1 or 11.");
+                userAceInput = parseInteger(newScanner.nextLine());
+            }
+        } else {
+            System.out.println("Unknown input.");
+        }
+
+        return userAceInput;
     }
 
 
@@ -308,4 +358,19 @@ public class GameController {
         }
     }
 
+    public Player getPlayer1() {
+        return player1;
+    }
+
+    public void setPlayer1(Player player1) {
+        this.player1 = player1;
+    }
+
+    public Dealer getDealer() {
+        return dealer;
+    }
+
+    public void setDealer(Dealer dealer) {
+        this.dealer = dealer;
+    }
 }
