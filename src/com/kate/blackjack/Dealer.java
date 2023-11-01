@@ -8,6 +8,8 @@ public class Dealer {
     private ArrayList<Card> dealersHand = new ArrayList<>();
     private String mode = "testing";
     private boolean dealThis = true;
+    private Integer collectedBets = 0;
+    private double dealersBank;
 
 
     Scanner newScanner = new Scanner(System.in);
@@ -84,5 +86,21 @@ public class Dealer {
 
     public void setDealersHand(ArrayList<Card> dealersHand) {
         this.dealersHand = dealersHand;
+    }
+
+    public Integer getCollectedBets() {
+        return collectedBets;
+    }
+
+    public void setCollectedBets(Integer collectedBets) {
+        this.collectedBets = collectedBets;
+    }
+
+    public double getDealersBank() {
+        return dealersBank;
+    }
+
+    public void setDealersBank(double dealersBank) {
+        this.dealersBank = dealersBank;
     }
 }

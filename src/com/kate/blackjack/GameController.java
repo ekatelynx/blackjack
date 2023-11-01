@@ -18,6 +18,8 @@ public class GameController {
 
 
 
+
+
     public void play() {
         for(int i = 0; i < 3; i++){
             System.out.println("Round " + currentRound);
@@ -38,6 +40,30 @@ public class GameController {
         newPlayer();
         playersBet();
         play();
+    }
+
+    public void resettingTheGame() {
+        Boolean reset = playAgain();
+        if (reset) {
+            currentRound = 1;
+            deck = new DeckOfCards();
+            deleteHand(dealer.getDealersHand());
+            dealer.shuffleDeck(deck.getDeck());
+            player1.setPlayersHand(new ArrayList<>());
+            player1.setDidIWin(false);
+            playersBet();
+            play();
+        }
+        else {
+            System.exit(0);
+        }
+    }
+
+    public Boolean playAgain() {
+        System.out.println("Do you want to play again?");
+        Boolean playerResponse = parseBoolean(newScanner.nextLine());
+        playerResponse = (Boolean)validate(playerResponse);
+        return playerResponse;
     }
 
     public GameController(String playerName, Integer playerBet) {
@@ -100,7 +126,6 @@ public class GameController {
         if(currentRound == 1){
             dealer.dealCards(playersHand,shuffledDeck, 2);
             dealer.dealCards(dealersHand,shuffledDeck, 2);
-            //TODO: check if A is 11 or 1 - initial evaluation
             if (playersHand.get(0).getRank() == "A" && playersHand.get(1).getRank() == "A") {
                 playersHand.get(0).setCardValue("1");
             }
@@ -117,7 +142,6 @@ public class GameController {
             Boolean playerResponse = hitOrStand();
             if (playerResponse) {
                 dealer.dealCards(playersHand, shuffledDeck, 1);
-                //TODO: check if A is 11 or 1 - ask a player
                 for (Card card: playersHand) {
                     if (card.getRank() == "A" && card.getCardValue() == 11 && card.isHasAceChangedBefore() == false && calculateHandValue(playersHand) > blackjack) {
                         System.out.println("Swapping the value of your Ace from 11 to 1 to avoid busting.");
@@ -144,7 +168,6 @@ public class GameController {
         } else if (currentRound == 3) {
             if (calculateHandValue(dealersHand) < 17) {
                 dealer.dealCards(dealersHand,shuffledDeck, 1);
-                //TODO: check if A is 11 or 1 - dealer logic
                 for (Card card: playersHand) {
                     if(card.getRank() == "A" && card.getCardValue() == 11 && card.isHasAceChangedBefore() == false && calculateHandValue(dealersHand) > blackjack){
                         System.out.println("Swapping the value of your Ace from 11 to 1 to avoid busting.");
@@ -174,25 +197,32 @@ public class GameController {
             total = calculateHandValue(hand);
             if (total == blackjack) {
                 youWon(player);
+                settlement();
                 deleteHand(hand);
             } else if (total > 21) {
                 youLost(player);
+                settlement();
                 deleteHand(hand);
             } else if (dealersTotal == blackjack ) {
                 youLost(player);
+                settlement();
                 deleteHand(hand);
             } else if (currentRound == 3) {
                 if  (dealersTotal > 21) {
                     youWon(player);
+                    settlement();
                     deleteHand(hand);
                 } else if (total > dealersTotal) {
                     youWon(player);
+                    settlement();
                     deleteHand(hand);
                 } else if (total < dealersTotal) {
                     youLost(player);
+                    settlement();
                     deleteHand(hand);
                 } else if (total == dealersTotal) {
                     itsATie(hand);
+                    settlement();
                 }
             }
 
@@ -265,9 +295,9 @@ public class GameController {
 
             if(anyLosers){
                 dealerWins();
-                System.exit(0);
+                resettingTheGame();
             }
-            System.exit(0);
+            resettingTheGame();
         }
     }
 
@@ -290,6 +320,47 @@ public class GameController {
         System.out.println("It's a tie!");
         displayPlayersHand(hand);
     }
+
+
+    // SETTLING BETS
+
+    public void settlement() {
+        Integer playersTotal = calculateHandValue(player1.getPlayersHand());
+        Integer dealersTotal = calculateHandValue(dealer.getDealersHand());
+        Double playersBank = player1.getPlayersBank();
+        Double dealersBank = dealer.getDealersBank();
+
+        double currentBet = player1.getBet();
+        System.out.println(("Current bank: " + playersBank));
+        System.out.println(("Current bet: " + currentBet));
+        if (currentRound == 1 && playersTotal == blackjack) {
+            playersBank = playersBank + (currentBet * 1.5 + currentBet);
+            System.out.println(("New bank: " + playersBank));
+            System.out.println(("Dealer's bank: " + dealersBank));
+        } else if (playersTotal == blackjack || (playersTotal > dealersTotal && playersTotal < blackjack) || dealersTotal > blackjack) {
+            playersBank = playersBank + (currentBet * 2);
+            System.out.println(("New bank: " + playersBank));
+            System.out.println(("Dealer's bank: " + dealersBank));
+        } else if (playersTotal > blackjack || (playersTotal < dealersTotal && playersTotal < blackjack)) {
+            dealersBank = dealersBank + currentBet;
+
+            if (playersBank > currentBet){
+                playersBank = playersBank - currentBet;
+            }
+            else{
+                playersBank = 0.0;
+            }
+            System.out.println(("New bank: " + playersBank));
+            System.out.println(("Dealer's bank: " + dealersBank));
+        } else if (playersTotal == dealersTotal) {
+            System.out.println(("New bank: " + currentBet));
+            System.out.println(("Dealer's bank: " + dealersBank));
+        }
+
+        player1.setPlayersBank(playersBank);
+        dealer.setDealersBank(dealersBank);
+    }
+
 
 //   VALIDATING THE USER INPUT
 
